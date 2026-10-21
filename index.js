@@ -1,5 +1,7 @@
 import express from 'express';
 import { pool } from './db.js';
+import cors from 'cors';
+
 
 const app = express();
 const PORT = 3000;
@@ -8,7 +10,9 @@ const PORT = 3000;
 app.use(express.json());
 
 
-
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
+}));
 // ==================================
 // HOME ROUTE
 // ==================================
@@ -210,6 +214,20 @@ app.delete('/tasks/:id', async (req, res) => {
 // ==================================
 // START THE SERVER
 // ==================================
+
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  res.status(500).json({
+    message: 'Internal server error',
+  });
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
